@@ -24,16 +24,18 @@ class Compiler:
         for line_number, line in enumerate(line_iter):
             node_lines = line
 
-            if not root.parent_of(HamlNode(line)).inside_filter_node():
-                if line.count('{') - line.count('}') == 1:
-                    start_multiline=line_number # For exception handling
+            if (
+                not root.parent_of(HamlNode(line)).inside_filter_node()
+                and line.count('{') - line.count('}') == 1
+            ):
+                start_multiline=line_number # For exception handling
 
-                    while line.count('{') - line.count('}') != -1:
-                        try:
-                            line = line_iter.next()
-                        except StopIteration:
-                            raise Exception('No closing brace found for multi-line HAML beginning at line %s' % (start_multiline+1))
-                        node_lines += line
+                while line.count('{') - line.count('}') != -1:
+                    try:
+                        line = line_iter.next()
+                    except StopIteration:
+                        raise Exception('No closing brace found for multi-line HAML beginning at line %s' % (start_multiline+1))
+                    node_lines += line
 
             # Blank lines
             if haml_node is not None and len(node_lines.strip()) == 0:

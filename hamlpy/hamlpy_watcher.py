@@ -25,7 +25,7 @@ class Options(object):
     OUTPUT_EXT = '.html'
 
 # dict of compiled files [fullpath : timestamp]
-compiled = dict()
+compiled = {}
 
 class StoreNameValueTagPair(argparse.Action):
     def __call__(self, parser, namespace, values, option_string = None):
@@ -50,10 +50,7 @@ arg_parser.add_argument('--attr-wrapper', dest='attr_wrapper', type=str, choices
 
 def watched_extension(extension):
     """Return True if the given extension is one of the watched extensions"""
-    for ext in hamlpy.VALID_EXTENSIONS:
-        if extension.endswith('.' + ext):
-            return True
-    return False
+    return any(extension.endswith('.' + ext) for ext in hamlpy.VALID_EXTENSIONS)
 
 def watch_folder():
     """Main entry point. Expects one or two arguments (the watch folder + optional destination folder)."""
@@ -101,16 +98,18 @@ def _watch_folder(folder, destination, compiler_args):
                 fullpath = os.path.join(dirpath, filename)
                 subfolder = os.path.relpath(dirpath, folder)
                 mtime = os.stat(fullpath).st_mtime
-                
+
                 # Create subfolders in target directory if they don't exist
                 compiled_folder = os.path.join(destination, subfolder)
                 if not os.path.exists(compiled_folder):
                     os.makedirs(compiled_folder)
-                
+
                 compiled_path = _compiled_path(compiled_folder, filename)
-                if (not fullpath in compiled or
-                    compiled[fullpath] < mtime or
-                    not os.path.isfile(compiled_path)):
+                if (
+                    fullpath not in compiled
+                    or compiled[fullpath] < mtime
+                    or not os.path.isfile(compiled_path)
+                ):
                     compile_file(fullpath, compiled_path, compiler_args)
                     compiled[fullpath] = mtime
 

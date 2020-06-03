@@ -4,7 +4,7 @@ from os.path import dirname, splitext
 
 from django.template import loaders
 
-MODULE_EXTENSIONS = tuple([suffix[0] for suffix in imp.get_suffixes()])
+MODULE_EXTENSIONS = tuple(suffix[0] for suffix in imp.get_suffixes())
 
 def get_django_template_loaders():
     return [(loader.__name__.rsplit('.',1)[1], loader) 
@@ -19,7 +19,5 @@ def get_submodules(package):
 
 def package_contents(package):
     package_path = dirname(loaders.__file__)
-    contents = set([splitext(module)[0]
-            for module in listdir(package_path)
-            if module.endswith(MODULE_EXTENSIONS)])
-    return contents
+    return {splitext(module)[0] for module in listdir(package_path)
+                if module.endswith(MODULE_EXTENSIONS)}

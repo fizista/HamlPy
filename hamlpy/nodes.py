@@ -155,9 +155,8 @@ class RootNode(TreeNode):
         return '\n' * (self.newlines + 1)
 
     def parent_of(self, node):
-        if (self._should_go_inside_last_node(node)):
-            ret = self.children[-1].parent_of(node)
-            return ret
+        if self._should_go_inside_last_node(node):
+            return self.children[-1].parent_of(node)
         else:
             return self
 
@@ -176,8 +175,7 @@ class RootNode(TreeNode):
             child._post_render()
 
     def _generate_html(self):
-        output = []
-        output.append(self.before)
+        output = [self.before]
         for child in self.children:
             output.append(child.before)
             output += [gc._generate_html() for gc in child.children]
@@ -338,12 +336,11 @@ class ElementNode(HamlNode):
         super(ElementNode, self)._post_render()
 
     def _render_inline_content(self, inline_content):
-        if inline_content == None or len(inline_content) == 0:
+        if inline_content is None or len(inline_content) == 0:
             return None
 
         if self.django_variable:
-            content = "{{ " + inline_content.strip() + " }}"
-            return content
+            return "{{ " + inline_content.strip() + " }}"
         else:
             return self.replace_inline_variables(inline_content)
 
